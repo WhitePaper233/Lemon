@@ -6,7 +6,7 @@ namespace Lemon.Token.Store;
 public static class TokenStore
 {
     private static readonly ConcurrentDictionary<Guid, List<TokenInfo>> _storage = [];
-    private static readonly ConcurrentDictionary<Guid, Lock> _locks = [];
+    private static readonly ConcurrentDictionary<Guid, ReaderWriterLockSlim> _locks = [];
 
     private const int MaxTokenCount = Constants.JWTToken.MaxTokenCount;
 
@@ -21,9 +21,10 @@ public static class TokenStore
     public static bool TryAddToken(Guid userId, string token, DateTime expireTime)
     {
         var tokens = _storage.GetOrAdd(userId, []);
-        var tokenInfoLock = _locks.GetOrAdd(userId, new Lock());
+        var tokenInfoLock = _locks.GetOrAdd(userId, new ReaderWriterLockSlim());
 
-        lock (tokenInfoLock)
+        tokenInfoLock.EnterWriteLock();
+        try
         {
             // Remove expired tokens
             tokens.RemoveAll(tokenInfo => tokenInfo.ExpireTime < DateTime.Now);
@@ -44,6 +45,10 @@ public static class TokenStore
                 _storage[userId] = newTokens.TakeLast(MaxTokenCount).ToList();
             }
         }
+        finally
+        {
+            tokenInfoLock.ExitWriteLock();
+        }
 
         return true;
     }
@@ -59,14 +64,19 @@ public static class TokenStore
     {
         if (_storage.TryGetValue(userId, out var tokens))
         {
-            var tokenInfoLock = _locks.GetOrAdd(userId, new Lock());
-            lock (tokenInfoLock)
+            var tokenInfoLock = _locks.GetOrAdd(userId, new ReaderWriterLockSlim());
+            tokenInfoLock.EnterWriteLock();
+            try
             {
                 var tokenInfoToRemove = tokens.FirstOrDefault(tokenInfo => tokenInfo.Token == token);
                 if (tokenInfoToRemove != null)
                 {
                     tokens.Remove(tokenInfoToRemove);
                 }
+            }
+            finally
+            {
+                tokenInfoLock.ExitWriteLock();
             }
         }
         return true;
@@ -85,14 +95,19 @@ public static class TokenStore
     {
         if (_storage.TryGetValue(userId, out var tokens))
         {
-            var tokenInfoLock = _locks.GetOrAdd(userId, new Lock());
-            lock (tokenInfoLock)
+            var tokenInfoLock = _locks.GetOrAdd(userId, new ReaderWriterLockSlim());
+            tokenInfoLock.EnterReadLock();
+            try
             {
                 var tokenInfo = tokens.FirstOrDefault(tokenInfo => tokenInfo.Token == token);
                 if (tokenInfo != null && tokenInfo.ExpireTime > DateTime.Now)
                 {
                     return true;
                 }
+            }
+            finally
+            {
+                tokenInfoLock.ExitReadLock();
             }
         }
 
