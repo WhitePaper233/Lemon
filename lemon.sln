@@ -1,0 +1,34 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lemon.Backend", "Lemon.Backend\Lemon.Backend.csproj", "{610A8171-F4A4-454D-A683-6AA129CA43F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lemon.Token", "Lemon.Token\Lemon.Token.csproj", "{74BB3DD3-4CCE-4876-86E3-8CA67B183343}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lemon.Token.Test", "Lemon.Token.Test\Lemon.Token.Test.csproj", "{7C9C2583-086D-445C-91A6-79BEDB56940B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{610A8171-F4A4-454D-A683-6AA129CA43F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{610A8171-F4A4-454D-A683-6AA129CA43F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{610A8171-F4A4-454D-A683-6AA129CA43F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{610A8171-F4A4-454D-A683-6AA129CA43F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74BB3DD3-4CCE-4876-86E3-8CA67B183343}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74BB3DD3-4CCE-4876-86E3-8CA67B183343}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74BB3DD3-4CCE-4876-86E3-8CA67B183343}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74BB3DD3-4CCE-4876-86E3-8CA67B183343}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C9C2583-086D-445C-91A6-79BEDB56940B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C9C2583-086D-445C-91A6-79BEDB56940B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C9C2583-086D-445C-91A6-79BEDB56940B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C9C2583-086D-445C-91A6-79BEDB56940B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
