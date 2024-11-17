@@ -36,7 +36,7 @@ public static class TokenStore
                 ExpireTime = expireTime
             });
 
-            // Remove overlimit tokens
+            // Remove over limit tokens
             if (tokens.Count > MaxTokenCount)
             {
                 var newTokens = from tokenInfo in tokens
@@ -55,7 +55,7 @@ public static class TokenStore
 
     public static bool TryGenerateAndAddToken(Guid userId, string nickName, DateTime expireTime, out string token)
     {
-        token = JWTGenerator.GenerateToken(userId, nickName, expireTime);
+        token = JwtGenerator.GenerateToken(userId, nickName, expireTime);
 
         return TryAddToken(userId, token, expireTime);
     }

@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Lemon.Token.Generator;
 
-public static class JWTGenerator
+public static class JwtGenerator
 {
     public static string GenerateToken(Guid userId, string nickName, DateTime expireTime)
     {

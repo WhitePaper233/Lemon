@@ -1,15 +1,9 @@
 namespace Lemon.Backend.Models;
 
-public class BaseResponseDto
+public class BaseResponseDto(int code, string message)
 {
-    public int Code { get; set; }
-    public string Message { get; set; } = "";
-
-    public BaseResponseDto(int code, string message)
-    {
-        Code = code;
-        Message = message;
-    }
+    public int Code { get; set; } = code;
+    public string Message { get; set; } = message;
 }
 
 public class BaseResponseWithData<T>(int code, string message, T? data) : BaseResponseDto(code, message)

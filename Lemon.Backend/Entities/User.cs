@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Lemon.Backend.Services;
 
 namespace Lemon.Backend.Entities;
 
@@ -9,7 +8,7 @@ namespace Lemon.Backend.Entities;
 public class User : BaseEntity
 {
     [RegularExpression(Utils.RegularExpressions.UserName.Pattern, ErrorMessage = Utils.RegularExpressions.UserName.Tips)]
-    public string? UserName { get; set; } // 用户名
+    public required string UserName { get; set; } // 用户名
 
     [Required]
     [Phone(ErrorMessage = "Invalid phone number")]

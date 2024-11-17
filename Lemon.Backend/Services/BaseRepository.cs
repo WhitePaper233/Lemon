@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Lemon.Backend.Entities;
 
 namespace Lemon.Backend.Services;
 

@@ -1,5 +1,4 @@
 using Lemon.Backend.Entities;
-using Lemon.Backend.Model.User;
 using Lemon.Backend.Models.User;
 using Lemon.Backend.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +35,7 @@ public class UserController : ControllerBase
         var user = new User
         {
             Id = id,
-            UserName = null,
+            UserName = id.ToString(),
             Email = userRegisterDto.Email,
             PhoneNumber = userRegisterDto.PhoneNumber,
             NickName = $"user_{id.ToString()[..8]}",
@@ -114,5 +113,25 @@ public class UserController : ControllerBase
         }
 
         return UserLoginResponseDto.Success(token);
+    }
+
+    /// <summary>
+    /// 获取用户信息
+    /// </summary>
+    /// <param name="id">用户ID</param>
+    /// <returns>用户信息</returns>
+    [HttpGet("{id}/profile", Name = "Profile")]
+    [ProducesResponseType(typeof(UserProfileResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(UserProfileResponseDto), StatusCodes.Status400BadRequest)]
+    public async Task<UserProfileResponseDto> GetProfile([FromRoute] Guid id)
+    {
+        var userRepository = _repository.UserRepository;
+        var user = await userRepository.GetByIdAsync(id);
+        if (user == null)
+        {
+            return UserProfileResponseDto.Fail("User Not Found");
+        }
+
+        return UserProfileResponseDto.Success(user);
     }
 }

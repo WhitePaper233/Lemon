@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Lemon.Backend.Services;
+namespace Lemon.Backend.Entities;
 
 public class BaseEntity
 {

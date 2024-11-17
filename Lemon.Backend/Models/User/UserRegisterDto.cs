@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Lemon.Backend.Utils;
 
-namespace Lemon.Backend.Model.User;
+namespace Lemon.Backend.Models.User;
 
 public class UserRegisterDto
 {

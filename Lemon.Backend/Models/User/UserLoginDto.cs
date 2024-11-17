@@ -1,6 +1,6 @@
-namespace Lemon.Backend.Models.User;
-
 using System.ComponentModel.DataAnnotations;
+
+namespace Lemon.Backend.Models.User;
 
 public class UserLoginDto
 {

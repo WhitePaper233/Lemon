@@ -21,6 +21,7 @@ public static class ModelBuilderExtensions
             new User
             {
                 Id = Guid.NewGuid(),
+                UserName = "John",
                 PhoneNumber = "12345678901",
                 NickName = "John Ave",
                 PasswordHash = [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A],

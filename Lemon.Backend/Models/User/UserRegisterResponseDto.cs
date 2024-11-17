@@ -1,6 +1,4 @@
-using Lemon.Backend.Models;
-
-namespace Lemon.Backend.Model.User;
+namespace Lemon.Backend.Models.User;
 
 public class UserRegisterResponseDto : BaseResponseDto
 {
