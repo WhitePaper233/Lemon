@@ -2,6 +2,7 @@
 using System.Text.Json;
 using Lemon.Backend.Entities;
 using Lemon.Backend.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lemon.Backend;
@@ -30,10 +31,14 @@ public class Program
             options.UseNpgsql(connectionString);
         });
 
+        // Configure JWT authentication
+        builder.Services.AddAuthentication("Bearer").AddScheme<AuthenticationSchemeOptions, Lemon.Token.AuthenticationHandler>("Bearer", null);
+        builder.Services.AddAuthorization();
+
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerGen(Utils.Swagger.ConfigurateSwaggerGen);
 
         var app = builder.Build();
 
@@ -50,8 +55,8 @@ public class Program
             dbContext.Database.Migrate();
         }
 
+        app.UseAuthentication();
         app.UseAuthorization();
-
         app.MapControllers();
 
         app.Run();

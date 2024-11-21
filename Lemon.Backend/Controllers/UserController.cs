@@ -1,6 +1,8 @@
 using Lemon.Backend.Entities;
 using Lemon.Backend.Models.User;
 using Lemon.Backend.Services;
+using Lemon.Token;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lemon.Backend.Controllers;
@@ -25,8 +27,8 @@ public class UserController : ControllerBase
     /// <returns>注册结果</returns>
     [HttpPost("register", Name = "Register")]
     [ProducesResponseType(typeof(UserRegisterResponseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(UserRegisterResponseDto), StatusCodes.Status400BadRequest)]
-    public async Task<UserRegisterResponseDto> Register(UserRegisterDto userRegisterDto)
+    [ProducesResponseType(typeof(UserRegisterResponseDto), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Register(UserRegisterDto userRegisterDto)
     {
         var userRepository = _repository.UserRepository;
 
@@ -47,11 +49,15 @@ public class UserController : ControllerBase
         if (!result)
         {
             _logger.LogWarning("User {} register failed", user.Id);
-            return UserRegisterResponseDto.Fail("Register Failed");
+            return StatusCode
+            (
+                StatusCodes.Status500InternalServerError,
+                UserRegisterResponseDto.Fail("Register Failed")
+            );
         }
 
         _logger.LogDebug("User {} registered", user.Id);
-        return UserRegisterResponseDto.Success("Register Success");
+        return Ok(UserRegisterResponseDto.Success("Register Success"));
     }
 
     /// <summary>
@@ -64,11 +70,16 @@ public class UserController : ControllerBase
     [HttpPost("login", Name = "Login")]
     [ProducesResponseType(typeof(UserLoginResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(UserLoginResponseDto), StatusCodes.Status400BadRequest)]
-    public async Task<UserLoginResponseDto> Login(UserLoginDto userLoginDto)
+    [ProducesResponseType(typeof(UserLoginResponseDto), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Login(UserLoginDto userLoginDto)
     {
         if (!userLoginDto.IsValid())
         {
-            return UserLoginResponseDto.Fail("Invalid Input");
+            return StatusCode
+            (
+                StatusCodes.Status400BadRequest,
+                UserLoginResponseDto.Fail("Invalid Input")
+            );
         }
 
         var userRepository = _repository.UserRepository;
@@ -78,7 +89,11 @@ public class UserController : ControllerBase
             user = await userRepository.GetByEmailAsync(userLoginDto.Email);
             if (user == null)
             {
-                return UserLoginResponseDto.Fail("User Not Found");
+                return StatusCode
+                (
+                    StatusCodes.Status400BadRequest,
+                    UserLoginResponseDto.Fail("User Not Found")
+                );
             }
         }
         else if (userLoginDto.PhoneNumber != null)
@@ -86,7 +101,11 @@ public class UserController : ControllerBase
             user = await userRepository.GetByPhoneNumberAsync(userLoginDto.PhoneNumber);
             if (user == null)
             {
-                return UserLoginResponseDto.Fail("User Not Found");
+                return StatusCode
+                (
+                    StatusCodes.Status400BadRequest,
+                    UserLoginResponseDto.Fail("User Not Found")
+                );
             }
         }
         else if (userLoginDto.UserName != null)
@@ -94,25 +113,41 @@ public class UserController : ControllerBase
             user = await userRepository.GetByUserNameAsync(userLoginDto.UserName);
             if (user == null)
             {
-                return UserLoginResponseDto.Fail("User Not Found");
+                return StatusCode
+                (
+                    StatusCodes.Status400BadRequest,
+                    UserLoginResponseDto.Fail("User Not Found")
+                );
             }
         }
         else
         {
-            return UserLoginResponseDto.Fail("Invalid Input");
+            return StatusCode
+            (
+                StatusCodes.Status400BadRequest,
+                UserLoginResponseDto.Fail("Invalid Input")
+            );
         }
 
         if (!Utils.Password.VerifyPasswordHash(userLoginDto.Password, user.PasswordHash, user.Salt))
         {
-            return UserLoginResponseDto.Fail("Password Error");
+            return StatusCode
+            (
+                StatusCodes.Status400BadRequest,
+                UserLoginResponseDto.Fail("Password Error")
+            );
         }
 
-        if (!Token.Store.TokenStore.TryGenerateAndAddToken(user.Id, user.NickName, new DateTime().AddHours(Token.Constants.JWTToken.TokenExpireTime), out var token))
+        if (!Token.Store.TokenStore.TryGenerateAndAddToken(user.Id, user.NickName, DateTime.Now.AddHours(Constants.JWTToken.TokenExpireTime), out var token))
         {
-            return UserLoginResponseDto.Fail("Generate Token Failed");
+            return StatusCode
+            (
+                StatusCodes.Status500InternalServerError,
+                UserLoginResponseDto.Fail("Generate Token Failed")
+            );
         }
 
-        return UserLoginResponseDto.Success(token);
+        return Ok(UserLoginResponseDto.Success(token));
     }
 
     /// <summary>
@@ -123,15 +158,32 @@ public class UserController : ControllerBase
     [HttpGet("{id}/profile", Name = "Profile")]
     [ProducesResponseType(typeof(UserProfileResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(UserProfileResponseDto), StatusCodes.Status400BadRequest)]
-    public async Task<UserProfileResponseDto> GetProfile([FromRoute] Guid id)
+    public async Task<IActionResult> GetProfile([FromRoute] Guid id)
     {
         var userRepository = _repository.UserRepository;
         var user = await userRepository.GetByIdAsync(id);
         if (user == null)
         {
-            return UserProfileResponseDto.Fail("User Not Found");
+            return StatusCode
+            (
+                StatusCodes.Status400BadRequest,
+                UserProfileResponseDto.Fail("User Not Found")
+            );
         }
 
-        return UserProfileResponseDto.Success(user);
+        return Ok(UserProfileResponseDto.Success(user));
+    }
+
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    [HttpGet("auth-test", Name = "TestAuth")]
+    public IActionResult ProtectedEndpoint()
+    {
+        var userId = User.GetUserId();
+        if (userId == Guid.Empty)
+        {
+            return Unauthorized("User ID not found.");
+        }
+
+        return Ok($"Authenticated User ID: {userId}");
     }
 }

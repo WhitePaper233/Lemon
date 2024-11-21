@@ -1,5 +1,5 @@
 using System.Collections.Concurrent;
-using Lemon.Token.Generator;
+using Lemon.Token.Jwt;
 
 namespace Lemon.Token.Store;
 
@@ -55,7 +55,7 @@ public static class TokenStore
 
     public static bool TryGenerateAndAddToken(Guid userId, string nickName, DateTime expireTime, out string token)
     {
-        token = JwtGenerator.GenerateToken(userId, nickName, expireTime);
+        token = JwtUtility.GenerateJwtToken(userId, nickName, expireTime);
 
         return TryAddToken(userId, token, expireTime);
     }
@@ -96,6 +96,7 @@ public static class TokenStore
         if (_storage.TryGetValue(userId, out var tokens))
         {
             var tokenInfoLock = _locks.GetOrAdd(userId, new ReaderWriterLockSlim());
+
             tokenInfoLock.EnterReadLock();
             try
             {
@@ -112,5 +113,19 @@ public static class TokenStore
         }
 
         return false;
+    }
+
+    public static bool VerifyToken(string token, out Guid id)
+    {
+        if (JwtUtility.TryParseToken(token, out id))
+        {
+            return VerifyToken(id, token);
+        }
+        return false;
+    }
+
+    public static bool VerifyToken(string token)
+    {
+        return JwtUtility.TryParseToken(token, out _);
     }
 }
