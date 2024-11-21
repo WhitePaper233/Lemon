@@ -7,6 +7,11 @@ namespace Lemon.Token.Jwt;
 
 public static class JwtUtility
 {
+    public static class LemonClaimNames
+    {
+        public const string UserId = "uid";
+    }
+
     public static string GenerateJwtToken(Guid userId, string nickName, DateTime expireTime)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Constants.JWTToken.Secret));
@@ -19,8 +24,9 @@ public static class JwtUtility
             signingCredentials: creds,
             claims: [
                 new Claim(JwtRegisteredClaimNames.Sub, Constants.JWTToken.Subject),
-                new Claim(JwtRegisteredClaimNames.Jti, userId.ToString()),
-                new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
+                new Claim(LemonClaimNames.UserId, userId.ToString()),
             ]
         );
 
@@ -36,7 +42,7 @@ public static class JwtUtility
             return false;
         }
 
-        id = Guid.Parse(jsonToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.Jti).Value);
+        id = Guid.Parse(jsonToken.Claims.First(claim => claim.Type == LemonClaimNames.UserId).Value);
         return true;
     }
 }
